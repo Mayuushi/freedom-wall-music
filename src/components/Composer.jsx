@@ -7,6 +7,7 @@ import YouTubePicker from "./YoutubePicker";
 // - recipient (optional)
 // - message (required)
 // - optional youtube attachment
+// - edited import name
 
 export default function Composer({ onPosted }) {
   const [anonymous, setAnonymous] = useState(true);
