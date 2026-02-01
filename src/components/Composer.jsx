@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { apiFetch } from "../lib/api";
-import YouTubePicker from "./YoutubePicker";
-// Create a post with:
+import YouTubePicker from "./YouTubePicker";// Create a post with:
 // - anonymous toggle
 // - name (required when not anonymous)
 // - recipient (optional)
 // - message (required)
 // - optional youtube attachment
-// - edited import name
+// - edited import namee
 
 export default function Composer({ onPosted }) {
   const [anonymous, setAnonymous] = useState(true);
