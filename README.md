@@ -1,6 +1,6 @@
 # Freedom Wall — Serverless MERN Web Application
 
-Freedom Wall is a **serverless MERN-style web application** that allows users to post messages to a public wall, either **anonymously or with a name**, with optional recipients and optional music attachments via YouTube.
+Freedom Wall is a **serverless MERN-style web application** that allows users to post messages to a public wall, either **anonymously or with a name**, with recipients and music attachments via YouTube.
 
 The application focuses on:
 - A **content-first wall/feed**
