@@ -1,32 +1,88 @@
 :root {
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  background: #f7f7fb;
+  font-family: 'Roboto', 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+  background: #f9f9f9;
+  color: #0f0f0f;
+  line-height: 1.5;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* Input and form element styling - YouTube inspired */
 input, textarea, button {
   font: inherit;
 }
 
 input, textarea {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
   outline: none;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+input:focus, textarea:focus {
+  border-color: #065fd4;
+  box-shadow: 0 0 0 1px #065fd4;
+}
+
+input:hover:not(:focus):not(:disabled), 
+textarea:hover:not(:focus):not(:disabled) {
+  border-color: #909090;
 }
 
 button {
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  background: white;
+  padding: 10px 16px;
+  border-radius: 2px;
+  border: none;
+  background: #f2f2f2;
   cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+
+button:hover:not(:disabled) {
+  background: #e0e0e0;
 }
 
 button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Scrollbar styling - YouTube style */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #909090;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #606060;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
 }

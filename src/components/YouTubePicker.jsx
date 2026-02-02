@@ -46,7 +46,7 @@ export default function YouTubePicker({ value, onChange }) {
   return (
     <div style={{ border: "1px solid #ddd", padding: 12, borderRadius: 8 }}>
       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-        <strong>Attach music (YouTube)</strong>
+        <strong>Attach music (YouTube) <span style={{ color: "#d93025" }}>*</span></strong>
         {selected ? (
           <button
             type="button"
