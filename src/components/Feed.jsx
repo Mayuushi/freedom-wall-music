@@ -1,34 +1,45 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { apiFetch } from "../lib/api";
 import PostCard from "./PostCard";
 
-// Infinite-ish feed with cursor pagination.
+// Page-based feed with pagination.
 // Performance best practice:
-// - request smaller pages
-// - only load more when needed
+// - request smaller pages (6 posts per page)
+// - numbered pagination for better navigation
 // - keep payload small via backend projection
 
 export default function Feed({ refreshKey }) {
-  const [items, setItems] = useState([]);
-  const [cursor, setCursor] = useState(null);
+  const [allItems, setAllItems] = useState([]); // Store all fetched posts
+  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
-  const [done, setDone] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
-  // Avoid duplicate loads
-  const loadingRef = useRef(false);
+  const postsPerPage = 6;
 
-  async function loadFirst() {
+  // Load all posts initially
+  async function loadAllPosts() {
     setErr("");
     setLoading(true);
-    setDone(false);
-    setCursor(null);
 
     try {
-      const data = await apiFetch("/api/posts?limit=20");
-      setItems(data.items || []);
-      setCursor(data.nextCursor || null);
-      setDone(!data.nextCursor);
+      let allPosts = [];
+      let nextCursor = null;
+      
+      // Fetch all posts by following cursor pagination
+      do {
+        const url = nextCursor 
+          ? `/api/posts?limit=50&cursor=${encodeURIComponent(nextCursor)}`
+          : `/api/posts?limit=50`;
+        
+        const data = await apiFetch(url);
+        allPosts = [...allPosts, ...(data.items || [])];
+        nextCursor = data.nextCursor;
+      } while (nextCursor);
+
+      setAllItems(allPosts);
+      setHasMore(allPosts.length > postsPerPage);
+      setCurrentPage(1); // Reset to first page
     } catch (e) {
       setErr(e.message);
     } finally {
@@ -36,27 +47,55 @@ export default function Feed({ refreshKey }) {
     }
   }
 
-  async function loadMore() {
-    if (loadingRef.current || done || !cursor) return;
-    loadingRef.current = true;
-    setErr("");
-
-    try {
-      const data = await apiFetch(`/api/posts?limit=20&cursor=${encodeURIComponent(cursor)}`);
-      setItems((prev) => [...prev, ...(data.items || [])]);
-      setCursor(data.nextCursor || null);
-      setDone(!data.nextCursor);
-    } catch (e) {
-      setErr(e.message);
-    } finally {
-      loadingRef.current = false;
-    }
-  }
-
   useEffect(() => {
-    loadFirst();
+    loadAllPosts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshKey]);
+
+  // Calculate pagination values
+  const totalPages = Math.ceil(allItems.length / postsPerPage);
+  const startIndex = (currentPage - 1) * postsPerPage;
+  const endIndex = startIndex + postsPerPage;
+  const currentPosts = allItems.slice(startIndex, endIndex);
+
+  // Generate page numbers to display
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxPagesToShow = 5;
+    
+    if (totalPages <= maxPagesToShow) {
+      // Show all pages if total is small
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Show first page, current page neighbors, and last page
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) pages.push(i);
+        pages.push('...');
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1);
+        pages.push('...');
+        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        pages.push('...');
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
+        pages.push('...');
+        pages.push(totalPages);
+      }
+    }
+    return pages;
+  };
+
+  const handlePageChange = (page) => {
+    if (typeof page === 'number' && page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      // Scroll to top of feed
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   return (
     <div>
@@ -74,7 +113,7 @@ export default function Feed({ refreshKey }) {
         </h3>
         <button
           type="button"
-          onClick={loadFirst}
+          onClick={loadAllPosts}
           disabled={loading}
           style={{
             padding: "8px 16px",
@@ -95,6 +134,11 @@ export default function Feed({ refreshKey }) {
         >
           {loading ? "Refreshing..." : "Refresh"}
         </button>
+        {allItems.length > 0 && (
+          <span style={{ marginLeft: "auto", fontSize: 13, color: "#606060" }}>
+            Showing {startIndex + 1}-{Math.min(endIndex, allItems.length)} of {allItems.length}
+          </span>
+        )}
       </div>
 
       {/* Error display */}
@@ -122,13 +166,13 @@ export default function Feed({ refreshKey }) {
           marginBottom: 24
         }}
       >
-        {items.map((p) => (
+        {currentPosts.map((p) => (
           <PostCard key={p._id} post={p} />
         ))}
       </div>
 
       {/* Empty state when no posts and not loading */}
-      {!loading && items.length === 0 && (
+      {!loading && allItems.length === 0 && (
         <div
           style={{
             textAlign: "center",
@@ -141,38 +185,62 @@ export default function Feed({ refreshKey }) {
         </div>
       )}
 
-      {/* Load more button or end indicator */}
-      {items.length > 0 && (
-        <div style={{ textAlign: "center", marginTop: 24 }}>
-          {!done ? (
-            <button
-              type="button"
-              onClick={loadMore}
-              disabled={!cursor}
-              style={{
-                padding: "10px 24px",
-                borderRadius: 20,
-                border: "1px solid #ddd",
-                background: "white",
-                cursor: cursor ? "pointer" : "not-allowed",
-                fontSize: 14,
-                fontWeight: 500,
-                transition: "background 0.2s"
-              }}
-              onMouseEnter={(e) => {
-                if (cursor) e.target.style.background = "#f8f8f8";
-              }}
-              onMouseLeave={(e) => {
-                if (cursor) e.target.style.background = "white";
-              }}
-            >
-              Load more
-            </button>
-          ) : (
-            <div style={{ opacity: 0.6, fontSize: 13 }}>
-              You're all caught up.
-            </div>
-          )}
+      {/* Pagination controls */}
+      {totalPages > 1 && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 8,
+            marginTop: 32,
+            flexWrap: "wrap"
+          }}
+        >
+          {/* Page numbers */}
+          {getPageNumbers().map((page, index) => (
+            page === '...' ? (
+              <span
+                key={`ellipsis-${index}`}
+                style={{
+                  padding: "8px 4px",
+                  color: "#606060"
+                }}
+              >
+                ...
+              </span>
+            ) : (
+              <button
+                key={page}
+                type="button"
+                onClick={() => handlePageChange(page)}
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: 4,
+                  border: currentPage === page ? "none" : "1px solid #ddd",
+                  background: currentPage === page ? "#065fd4" : "white",
+                  color: currentPage === page ? "white" : "#0f0f0f",
+                  cursor: "pointer",
+                  fontSize: 14,
+                  fontWeight: currentPage === page ? 600 : 500,
+                  minWidth: 40,
+                  transition: "all 0.2s"
+                }}
+                onMouseEnter={(e) => {
+                  if (currentPage !== page) {
+                    e.target.style.background = "#f8f8f8";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (currentPage !== page) {
+                    e.target.style.background = "white";
+                  }
+                }}
+              >
+                {page}
+              </button>
+            )
+          ))}
         </div>
       )}
     </div>
