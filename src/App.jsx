@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Composer from "./components/Composer";
 import Feed from "./components/Feed";
+import PixelCat from "./components/PixelCat";
 import { useTheme } from "./contexts/ThemeContext";
 
 export default function App() {
@@ -48,6 +49,8 @@ export default function App() {
         >
           {/* Logo/Title */}
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            {/* Animated 8-bit thinking cat */}
+            <PixelCat />
             <div
               style={{
                 fontSize: 20,
@@ -55,7 +58,7 @@ export default function App() {
                 color: theme.textPrimary
               }}
             >
-              🗨️ Freedom Wall
+              Freedom Wall
             </div>
           </div>
 
