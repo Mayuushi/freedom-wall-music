@@ -1,7 +1,5 @@
 :root {
   font-family: 'Roboto', 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
-  background: #f9f9f9;
-  color: #0f0f0f;
   line-height: 1.5;
 }
 
@@ -14,44 +12,32 @@ body {
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* Input and form element styling - YouTube inspired */
+/* Input and form element styling - Theme aware */
 input, textarea, button {
   font: inherit;
+  transition: all 0.2s ease;
 }
 
 input, textarea {
   padding: 10px 12px;
-  border: 1px solid #ccc;
   border-radius: 4px;
   outline: none;
   font-size: 14px;
-  transition: border-color 0.2s ease;
 }
 
 input:focus, textarea:focus {
-  border-color: #065fd4;
-  box-shadow: 0 0 0 1px #065fd4;
-}
-
-input:hover:not(:focus):not(:disabled), 
-textarea:hover:not(:focus):not(:disabled) {
-  border-color: #909090;
+  box-shadow: 0 0 0 2px rgba(6, 95, 212, 0.3);
 }
 
 button {
   padding: 10px 16px;
   border-radius: 2px;
   border: none;
-  background: #f2f2f2;
   cursor: pointer;
   font-weight: 500;
-  transition: background 0.2s ease;
-}
-
-button:hover:not(:disabled) {
-  background: #e0e0e0;
 }
 
 button:disabled {
@@ -63,7 +49,7 @@ button:active:not(:disabled) {
   transform: scale(0.98);
 }
 
-/* Scrollbar styling - YouTube style */
+/* Scrollbar styling - adapts to theme */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -74,15 +60,19 @@ button:active:not(:disabled) {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #909090;
   border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #606060;
+  transition: background 0.2s ease;
 }
 
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
+}
+
+/* Dark mode specific adjustments */
+@media (prefers-color-scheme: dark) {
+  input::placeholder,
+  textarea::placeholder {
+    opacity: 0.5;
+  }
 }

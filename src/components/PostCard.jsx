@@ -1,13 +1,16 @@
 import { formatDate } from "../lib/format";
+import { useTheme } from "../contexts/ThemeContext";
 
 export default function PostCard({ post }) {
+  const { theme } = useTheme();
+  
   return (
     <div
       style={{
-        border: "1px solid #e5e5e5",
+        border: `1px solid ${theme.border}`,
         borderRadius: 12,
         overflow: "hidden",
-        background: "white",
+        background: theme.surface,
         transition: "box-shadow 0.2s ease, transform 0.1s ease",
         cursor: "default",
         height: "100%",
@@ -15,7 +18,9 @@ export default function PostCard({ post }) {
         flexDirection: "column"
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.1)";
+        e.currentTarget.style.boxShadow = theme.isDarkMode 
+          ? "0 2px 8px rgba(255,255,255,0.1)"
+          : "0 2px 8px rgba(0,0,0,0.1)";
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.boxShadow = "none";
@@ -74,7 +79,7 @@ export default function PostCard({ post }) {
               style={{
                 fontWeight: 600,
                 fontSize: 14,
-                color: "#0f0f0f",
+                color: theme.textPrimary,
                 marginBottom: 2,
                 overflow: "hidden",
                 textOverflow: "ellipsis",
@@ -83,7 +88,7 @@ export default function PostCard({ post }) {
             >
               {post.name || "Anonymous"}
             </div>
-            <div style={{ opacity: 0.6, fontSize: 12, color: "#606060" }}>
+            <div style={{ opacity: 0.6, fontSize: 12, color: theme.textSecondary }}>
               {formatDate(post.createdAt)}
             </div>
           </div>
@@ -94,9 +99,9 @@ export default function PostCard({ post }) {
               style={{
                 fontSize: 11,
                 padding: "4px 8px",
-                background: "#f2f2f2",
+                background: theme.surfaceHover,
                 borderRadius: 12,
-                color: "#606060",
+                color: theme.textSecondary,
                 fontWeight: 500,
                 flexShrink: 0
               }}
@@ -112,7 +117,7 @@ export default function PostCard({ post }) {
             style={{
               fontSize: 13,
               fontWeight: 600,
-              color: "#0f0f0f",
+              color: theme.textPrimary,
               marginBottom: 8,
               display: "-webkit-box",
               WebkitLineClamp: 2,
@@ -131,7 +136,7 @@ export default function PostCard({ post }) {
             margin: 0,
             fontSize: 14,
             lineHeight: 1.5,
-            color: "#0f0f0f",
+            color: theme.textPrimary,
             wordBreak: "break-word",
             display: "-webkit-box",
             WebkitLineClamp: post.youtube?.videoId ? 4 : 6,

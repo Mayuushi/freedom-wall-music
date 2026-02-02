@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { apiFetch } from "../lib/api";
 import YouTubePicker from "./YouTubePicker";
+import { useTheme } from "../contexts/ThemeContext";
 // Create a post with:
 // - anonymous toggle
 // - name (required when not anonymous)
-// - recipient (optional)
+// - recipient (required)
 // - message (required)
-// - optional youtube attachment
+// - youtube attachment (required)
 
 export default function Composer({ onPosted, onCancel }) {
   const [anonymous, setAnonymous] = useState(true);
@@ -17,6 +18,9 @@ export default function Composer({ onPosted, onCancel }) {
 
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
+
+  // Access theme
+  const { theme } = useTheme();
 
   async function submit(e) {
     e.preventDefault();
@@ -82,10 +86,10 @@ export default function Composer({ onPosted, onCancel }) {
           alignItems: "center",
           justifyContent: "space-between",
           paddingBottom: 16,
-          borderBottom: "1px solid #e5e5e5"
+          borderBottom: `1px solid ${theme.border}`
         }}
       >
-        <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>
+        <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600, color: theme.textPrimary }}>
           Create New Entry
         </h2>
         {onCancel && (
@@ -97,7 +101,7 @@ export default function Composer({ onPosted, onCancel }) {
               border: "none",
               fontSize: 24,
               cursor: "pointer",
-              color: "#606060",
+              color: theme.textSecondary,
               width: 40,
               height: 40,
               display: "flex",
@@ -106,7 +110,7 @@ export default function Composer({ onPosted, onCancel }) {
               borderRadius: "50%",
               transition: "background 0.2s"
             }}
-            onMouseEnter={(e) => (e.target.style.background = "#f2f2f2")}
+            onMouseEnter={(e) => (e.target.style.background = theme.surfaceHover)}
             onMouseLeave={(e) => (e.target.style.background = "transparent")}
             aria-label="Close"
           >
@@ -142,7 +146,7 @@ export default function Composer({ onPosted, onCancel }) {
               fontSize: 14,
               fontWeight: 500,
               marginBottom: 6,
-              color: "#0f0f0f"
+              color: theme.textPrimary
             }}
           >
             Your Name
@@ -154,7 +158,10 @@ export default function Composer({ onPosted, onCancel }) {
             maxLength={40}
             style={{
               width: "100%",
-              boxSizing: "border-box"
+              boxSizing: "border-box",
+              background: theme.surface,
+              color: theme.textPrimary,
+              border: `1px solid ${theme.borderLight}`
             }}
           />
         </div>
@@ -168,10 +175,10 @@ export default function Composer({ onPosted, onCancel }) {
             fontSize: 14,
             fontWeight: 500,
             marginBottom: 6,
-            color: "#0f0f0f"
+            color: theme.textPrimary
           }}
         >
-          Recipient <span style={{ color: "#d93025" }}>*</span>
+          Recipient <span style={{ color: theme.danger }}>*</span>
         </label>
         <input
           value={recipient}
@@ -180,7 +187,10 @@ export default function Composer({ onPosted, onCancel }) {
           maxLength={60}
           style={{
             width: "100%",
-            boxSizing: "border-box"
+            boxSizing: "border-box",
+            background: theme.surface,
+            color: theme.textPrimary,
+            border: `1px solid ${theme.borderLight}`
           }}
         />
       </div>
@@ -193,10 +203,10 @@ export default function Composer({ onPosted, onCancel }) {
             fontSize: 14,
             fontWeight: 500,
             marginBottom: 6,
-            color: "#0f0f0f"
+            color: theme.textPrimary
           }}
         >
-          Message <span style={{ color: "#d93025" }}>*</span>
+          Message <span style={{ color: theme.danger }}>*</span>
         </label>
         <textarea
           value={message}
@@ -208,13 +218,16 @@ export default function Composer({ onPosted, onCancel }) {
             width: "100%",
             boxSizing: "border-box",
             resize: "vertical",
-            fontFamily: "inherit"
+            fontFamily: "inherit",
+            background: theme.surface,
+            color: theme.textPrimary,
+            border: `1px solid ${theme.borderLight}`
           }}
         />
         <div
           style={{
             fontSize: 12,
-            color: "#606060",
+            color: theme.textSecondary,
             marginTop: 4,
             textAlign: "right"
           }}
@@ -230,8 +243,8 @@ export default function Composer({ onPosted, onCancel }) {
       {err ? (
         <div
           style={{
-            color: "#d93025",
-            background: "#fce8e6",
+            color: theme.danger,
+            background: theme.dangerBg,
             padding: 12,
             borderRadius: 8,
             fontSize: 14
@@ -258,9 +271,9 @@ export default function Composer({ onPosted, onCancel }) {
             style={{
               padding: "10px 20px",
               borderRadius: 20,
-              border: "1px solid #ccc",
-              background: "white",
-              color: "#0f0f0f",
+              border: `1px solid ${theme.borderLight}`,
+              background: theme.surface,
+              color: theme.textPrimary,
               fontWeight: 500,
               cursor: "pointer",
               fontSize: 14
@@ -276,7 +289,7 @@ export default function Composer({ onPosted, onCancel }) {
             padding: "10px 24px",
             borderRadius: 20,
             border: "none",
-            background: loading ? "#ccc" : "#065fd4",
+            background: loading ? theme.borderLight : theme.primary,
             color: "white",
             fontWeight: 500,
             cursor: loading ? "not-allowed" : "pointer",
@@ -284,10 +297,10 @@ export default function Composer({ onPosted, onCancel }) {
             transition: "background 0.2s"
           }}
           onMouseEnter={(e) => {
-            if (!loading) e.target.style.background = "#0553c2";
+            if (!loading) e.target.style.background = theme.primaryHover;
           }}
           onMouseLeave={(e) => {
-            if (!loading) e.target.style.background = "#065fd4";
+            if (!loading) e.target.style.background = theme.primary;
           }}
         >
           {loading ? "Posting..." : "Post"}

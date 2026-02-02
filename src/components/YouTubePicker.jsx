@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { apiFetch } from "../lib/api";
+import { useTheme } from "../contexts/ThemeContext";
 
 // Lets user search YouTube and pick a video to attach.
 // NOTE: results are served from our serverless function so API key stays hidden.
@@ -9,6 +10,9 @@ export default function YouTubePicker({ value, onChange }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
+
+  // Access theme
+  const { theme } = useTheme();
 
   // Debounce input for performance (reduces API calls)
   const debouncedQuery = useDebouncedValue(query, 450);
@@ -44,14 +48,21 @@ export default function YouTubePicker({ value, onChange }) {
   const selected = value;
 
   return (
-    <div style={{ border: "1px solid #ddd", padding: 12, borderRadius: 8 }}>
+    <div style={{ border: `1px solid ${theme.borderLight}`, padding: 12, borderRadius: 8, background: theme.surface }}>
       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-        <strong>Attach music (YouTube) <span style={{ color: "#d93025" }}>*</span></strong>
+        <strong style={{ color: theme.textPrimary }}>Attach music (YouTube) <span style={{ color: theme.danger }}>*</span></strong>
         {selected ? (
           <button
             type="button"
             onClick={() => onChange(null)}
-            style={{ marginLeft: "auto" }}
+            style={{
+              marginLeft: "auto",
+              padding: "6px 12px",
+              background: theme.surfaceHover,
+              color: theme.textPrimary,
+              border: `1px solid ${theme.borderLight}`,
+              borderRadius: 4
+            }}
           >
             Remove
           </button>
@@ -60,7 +71,7 @@ export default function YouTubePicker({ value, onChange }) {
 
       {selected ? (
         <div style={{ marginTop: 10 }}>
-          <div style={{ fontSize: 14, marginBottom: 6 }}>
+          <div style={{ fontSize: 14, marginBottom: 6, color: theme.textPrimary }}>
             Attached: <strong>{selected.title}</strong>
           </div>
           {/* Embed the attached video */}
@@ -82,11 +93,18 @@ export default function YouTubePicker({ value, onChange }) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search a song or artist..."
-            style={{ width: "100%", marginTop: 10, padding: 10 }}
+            style={{
+              width: "100%",
+              marginTop: 10,
+              padding: 10,
+              background: theme.surface,
+              color: theme.textPrimary,
+              border: `1px solid ${theme.borderLight}`
+            }}
           />
 
-          {loading ? <p style={{ marginTop: 8 }}>Searching…</p> : null}
-          {err ? <p style={{ marginTop: 8, color: "crimson" }}>{err}</p> : null}
+          {loading ? <p style={{ marginTop: 8, color: theme.textSecondary }}>Searching…</p> : null}
+          {err ? <p style={{ marginTop: 8, color: theme.danger }}>{err}</p> : null}
 
           <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
             {items.map((it) => (
@@ -103,9 +121,10 @@ export default function YouTubePicker({ value, onChange }) {
                 style={{
                   textAlign: "left",
                   padding: 10,
-                  border: "1px solid #eee",
+                  border: `1px solid ${theme.border}`,
                   borderRadius: 8,
-                  background: "white",
+                  background: theme.surface,
+                  color: theme.textPrimary,
                   cursor: "pointer"
                 }}
               >
@@ -121,8 +140,8 @@ export default function YouTubePicker({ value, onChange }) {
                     />
                   ) : null}
                   <div>
-                    <div style={{ fontWeight: 600, fontSize: 14 }}>{it.title}</div>
-                    <div style={{ fontSize: 12, opacity: 0.7 }}>{it.channelTitle}</div>
+                    <div style={{ fontWeight: 600, fontSize: 14, color: theme.textPrimary }}>{it.title}</div>
+                    <div style={{ fontSize: 12, opacity: 0.7, color: theme.textSecondary }}>{it.channelTitle}</div>
                   </div>
                 </div>
               </button>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "../lib/api";
 import PostCard from "./PostCard";
+import { useTheme } from "../contexts/ThemeContext";
 
 // Page-based feed with pagination.
 // Performance best practice:
@@ -14,6 +15,9 @@ export default function Feed({ refreshKey }) {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
   const [hasMore, setHasMore] = useState(true);
+
+  // Access theme
+  const { theme } = useTheme();
 
   const postsPerPage = 6;
 
@@ -108,7 +112,7 @@ export default function Feed({ refreshKey }) {
           marginBottom: 24
         }}
       >
-        <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: "#0f0f0f" }}>
+        <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: theme.textPrimary }}>
           Public Wall
         </h3>
         <button
@@ -118,24 +122,25 @@ export default function Feed({ refreshKey }) {
           style={{
             padding: "8px 16px",
             borderRadius: 18,
-            border: "1px solid #ddd",
-            background: "white",
+            border: `1px solid ${theme.borderLight}`,
+            background: theme.surface,
+            color: theme.textPrimary,
             cursor: loading ? "not-allowed" : "pointer",
             fontSize: 13,
             fontWeight: 500,
             transition: "background 0.2s"
           }}
           onMouseEnter={(e) => {
-            if (!loading) e.target.style.background = "#f8f8f8";
+            if (!loading) e.target.style.background = theme.surfaceHover;
           }}
           onMouseLeave={(e) => {
-            if (!loading) e.target.style.background = "white";
+            if (!loading) e.target.style.background = theme.surface;
           }}
         >
           {loading ? "Refreshing..." : "Refresh"}
         </button>
         {allItems.length > 0 && (
-          <span style={{ marginLeft: "auto", fontSize: 13, color: "#606060" }}>
+          <span style={{ marginLeft: "auto", fontSize: 13, color: theme.textSecondary }}>
             Showing {startIndex + 1}-{Math.min(endIndex, allItems.length)} of {allItems.length}
           </span>
         )}
@@ -145,8 +150,8 @@ export default function Feed({ refreshKey }) {
       {err ? (
         <div
           style={{
-            color: "#d93025",
-            background: "#fce8e6",
+            color: theme.danger,
+            background: theme.dangerBg,
             padding: 12,
             borderRadius: 8,
             marginBottom: 16,
@@ -177,7 +182,7 @@ export default function Feed({ refreshKey }) {
           style={{
             textAlign: "center",
             padding: 48,
-            color: "#606060",
+            color: theme.textSecondary,
             fontSize: 14
           }}
         >
@@ -204,7 +209,7 @@ export default function Feed({ refreshKey }) {
                 key={`ellipsis-${index}`}
                 style={{
                   padding: "8px 4px",
-                  color: "#606060"
+                  color: theme.textSecondary
                 }}
               >
                 ...
@@ -217,9 +222,9 @@ export default function Feed({ refreshKey }) {
                 style={{
                   padding: "8px 12px",
                   borderRadius: 4,
-                  border: currentPage === page ? "none" : "1px solid #ddd",
-                  background: currentPage === page ? "#065fd4" : "white",
-                  color: currentPage === page ? "white" : "#0f0f0f",
+                  border: currentPage === page ? "none" : `1px solid ${theme.borderLight}`,
+                  background: currentPage === page ? theme.primary : theme.surface,
+                  color: currentPage === page ? "white" : theme.textPrimary,
                   cursor: "pointer",
                   fontSize: 14,
                   fontWeight: currentPage === page ? 600 : 500,
@@ -228,12 +233,12 @@ export default function Feed({ refreshKey }) {
                 }}
                 onMouseEnter={(e) => {
                   if (currentPage !== page) {
-                    e.target.style.background = "#f8f8f8";
+                    e.target.style.background = theme.surfaceHover;
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (currentPage !== page) {
-                    e.target.style.background = "white";
+                    e.target.style.background = theme.surface;
                   }
                 }}
               >

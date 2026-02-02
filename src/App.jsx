@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Composer from "./components/Composer";
 import Feed from "./components/Feed";
+import { useTheme } from "./contexts/ThemeContext";
 
 export default function App() {
   // When a post is created, bump refreshKey so feed reloads
@@ -8,6 +9,9 @@ export default function App() {
   
   // Modal state for composer popup (YouTube-style)
   const [showComposer, setShowComposer] = useState(false);
+
+  // Access theme context
+  const { theme, isDarkMode, toggleDarkMode } = useTheme();
 
   /**
    * Handle successful post submission
@@ -26,9 +30,9 @@ export default function App() {
           position: "sticky",
           top: 0,
           zIndex: 100,
-          background: "white",
-          borderBottom: "1px solid #e5e5e5",
-          boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
+          background: theme.surface,
+          borderBottom: `1px solid ${theme.border}`,
+          boxShadow: isDarkMode ? "0 1px 2px rgba(0,0,0,0.3)" : "0 1px 2px rgba(0,0,0,0.05)"
         }}
       >
         <div
@@ -48,37 +52,66 @@ export default function App() {
               style={{
                 fontSize: 20,
                 fontWeight: 600,
-                color: "#0f0f0f"
+                color: theme.textPrimary
               }}
             >
               🗨️ Freedom Wall
             </div>
           </div>
 
-          {/* Action button - YouTube style */}
-          <button
-            type="button"
-            onClick={() => setShowComposer(true)}
-            style={{
-              padding: "10px 20px",
-              borderRadius: 20,
-              border: "none",
-              background: "#065fd4",
-              color: "white",
-              fontWeight: 500,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              fontSize: 14,
-              transition: "background 0.2s ease"
-            }}
-            onMouseEnter={(e) => (e.target.style.background = "#0553c2")}
-            onMouseLeave={(e) => (e.target.style.background = "#065fd4")}
-          >
-            <span style={{ fontSize: 18 }}>+</span>
-            Add New Entry
-          </button>
+          {/* Action buttons container */}
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            {/* Dark mode toggle button */}
+            <button
+              type="button"
+              onClick={toggleDarkMode}
+              style={{
+                padding: "10px",
+                borderRadius: "50%",
+                border: "none",
+                background: theme.surfaceHover,
+                color: theme.textPrimary,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 40,
+                height: 40,
+                fontSize: 20,
+                transition: "background 0.2s ease"
+              }}
+              onMouseEnter={(e) => (e.target.style.background = theme.border)}
+              onMouseLeave={(e) => (e.target.style.background = theme.surfaceHover)}
+              aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {isDarkMode ? "☀️" : "🌙"}
+            </button>
+
+            {/* Add New Entry button - YouTube style */}
+            <button
+              type="button"
+              onClick={() => setShowComposer(true)}
+              style={{
+                padding: "10px 20px",
+                borderRadius: 20,
+                border: "none",
+                background: theme.primary,
+                color: "white",
+                fontWeight: 500,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                fontSize: 14,
+                transition: "background 0.2s ease"
+              }}
+              onMouseEnter={(e) => (e.target.style.background = theme.primaryHover)}
+              onMouseLeave={(e) => (e.target.style.background = theme.primary)}
+            >
+              <span style={{ fontSize: 18 }}>+</span>
+              Add New Entry
+            </button>
+          </div>
         </div>
       </header>
 
@@ -102,7 +135,7 @@ export default function App() {
             left: 0,
             right: 0,
             bottom: 0,
-            background: "rgba(0, 0, 0, 0.5)",
+            background: theme.modalBackdrop,
             zIndex: 200,
             display: "flex",
             alignItems: "center",
@@ -116,13 +149,13 @@ export default function App() {
         >
           <div
             style={{
-              background: "white",
+              background: theme.surface,
               borderRadius: 12,
               maxWidth: 720,
               width: "100%",
               maxHeight: "90vh",
               overflow: "auto",
-              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)"
+              boxShadow: isDarkMode ? "0 8px 32px rgba(0, 0, 0, 0.6)" : "0 8px 32px rgba(0, 0, 0, 0.3)"
             }}
           >
             <Composer
