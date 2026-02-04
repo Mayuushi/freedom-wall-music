@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { apiFetch } from "../lib/api";
 import PostCard from "./PostCard";
 import ExpandedPost from "./ExpandedPost";
-import RunningCat from "./RunningCat";
 import { useTheme } from "../contexts/ThemeContext";
 
 // Page-based feed with pagination.
@@ -125,46 +124,12 @@ export default function Feed({ refreshKey }) {
 
   return (
     <div>
-      {/* Feed header with refresh button */}
-      <div
-        style={{
-          display: "flex",
-          gap: 12,
-          alignItems: "center",
-          marginBottom: 24
-        }}
-      >
-        <RunningCat loading={loading} />
-        <button
-          type="button"
-          onClick={loadAllPosts}
-          disabled={loading}
-          style={{
-            padding: "8px 16px",
-            borderRadius: 18,
-            border: `1px solid ${theme.borderLight}`,
-            background: theme.surface,
-            color: theme.textPrimary,
-            cursor: loading ? "not-allowed" : "pointer",
-            fontSize: 13,
-            fontWeight: 500,
-            transition: "background 0.2s"
-          }}
-          onMouseEnter={(e) => {
-            if (!loading) e.target.style.background = theme.surfaceHover;
-          }}
-          onMouseLeave={(e) => {
-            if (!loading) e.target.style.background = theme.surface;
-          }}
-        >
-          {loading ? "Refreshing..." : "Refresh"}
-        </button>
-        {allItems.length > 0 && (
-          <span style={{ marginLeft: "auto", fontSize: 13, color: theme.textSecondary }}>
-            Showing {startIndex + 1}-{Math.min(endIndex, allItems.length)} of {allItems.length}
-          </span>
-        )}
-      </div>
+      {/* Post count display */}
+      {allItems.length > 0 && (
+        <div style={{ marginBottom: 16, fontSize: 13, color: theme.textSecondary }}>
+          Showing {startIndex + 1}-{Math.min(endIndex, allItems.length)} of {allItems.length}
+        </div>
+      )}
 
       {/* Error display */}
       {err ? (
