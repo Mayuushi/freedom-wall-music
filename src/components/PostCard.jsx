@@ -1,8 +1,12 @@
 import { formatDate } from "../lib/format";
 import { useTheme } from "../contexts/ThemeContext";
+import { getAvatarById, DEFAULT_AVATAR_ID } from "../lib/avatars";
 
 export default function PostCard({ post }) {
   const { theme } = useTheme();
+  
+  // Get the avatar for this post, fallback to default if not found
+  const avatarData = getAvatarById(post.avatar || DEFAULT_AVATAR_ID);
   
   return (
     <div
@@ -52,25 +56,52 @@ export default function PostCard({ post }) {
             marginBottom: 8
           }}
         >
-          {/* Avatar placeholder - YouTube style */}
+          {/* Avatar - display selected avatar image */}
           <div
             style={{
               width: 36,
               height: 36,
               borderRadius: "50%",
-              background: post.anonymous
-                ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-                : "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+              background: theme.surfaceHover,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "white",
-              fontSize: 14,
-              fontWeight: 600,
-              flexShrink: 0
+              flexShrink: 0,
+              overflow: "hidden",
+              border: `2px solid ${theme.borderLight}`
             }}
+            title={avatarData?.name || "Avatar"}
           >
-            {post.anonymous ? "?" : (post.name?.[0]?.toUpperCase() || "A")}
+            {avatarData?.icon ? (
+              <img 
+                src={avatarData.icon} 
+                alt={avatarData.name} 
+                style={{ 
+                  width: "100%", 
+                  height: "100%",
+                  objectFit: "cover"
+                }} 
+              />
+            ) : (
+              // Fallback if avatar image fails to load
+              <div
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  background: post.anonymous
+                    ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                    : "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "white",
+                  fontSize: 14,
+                  fontWeight: 600
+                }}
+              >
+                {post.anonymous ? "?" : (post.name?.[0]?.toUpperCase() || "A")}
+              </div>
+            )}
           </div>
 
           {/* Author name and date */}

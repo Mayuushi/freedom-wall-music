@@ -7,9 +7,9 @@ const ThemeContext = createContext();
 export const themes = {
   light: {
     // Background colors
-    background: "#f9f9f9",
-    surface: "white",
-    surfaceHover: "#f8f8f8",
+    background: "rgba(249, 249, 249, 0.95)",
+    surface: "rgba(255, 255, 255, 0.95)",
+    surfaceHover: "rgba(248, 248, 248, 0.95)",
     
     // Text colors
     textPrimary: "#0f0f0f",
@@ -23,6 +23,7 @@ export const themes = {
     // Accent colors
     primary: "#065fd4",
     primaryHover: "#0553c2",
+    primaryBg: "rgba(6, 95, 212, 0.1)",
     danger: "#d93025",
     dangerBg: "#fce8e6",
     
@@ -37,9 +38,9 @@ export const themes = {
   },
   dark: {
     // Background colors
-    background: "#0f0f0f",
-    surface: "#1f1f1f",
-    surfaceHover: "#2a2a2a",
+    background: "rgba(15, 15, 15, 0.95)",
+    surface: "rgba(31, 31, 31, 0.95)",
+    surfaceHover: "rgba(42, 42, 42, 0.95)",
     
     // Text colors
     textPrimary: "#f1f1f1",
@@ -53,6 +54,7 @@ export const themes = {
     // Accent colors
     primary: "#3ea6ff",
     primaryHover: "#65b8ff",
+    primaryBg: "rgba(62, 166, 255, 0.15)",
     danger: "#ff5555",
     dangerBg: "#3a1f1f",
     
@@ -95,7 +97,8 @@ export function ThemeProvider({ children }) {
 
   // Update document background color when theme changes
   useEffect(() => {
-    document.body.style.background = theme.background;
+    // Make background transparent to show the CalmBackground component
+    document.body.style.background = "transparent";
     document.body.style.color = theme.textPrimary;
   }, [theme]);
 

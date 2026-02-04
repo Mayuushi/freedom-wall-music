@@ -2,12 +2,14 @@ import { useState } from "react";
 import { apiFetch } from "../lib/api";
 import YouTubePicker from "./YouTubePicker";
 import { useTheme } from "../contexts/ThemeContext";
+import { AVATARS, DEFAULT_AVATAR_ID } from "../lib/avatars";
 // Create a post with:
 // - anonymous toggle
 // - name (required when not anonymous)
 // - recipient (required)
 // - message (required)
 // - youtube attachment (required)
+// - avatar selection (optional, defaults to 'barbarian')
 
 export default function Composer({ onPosted, onCancel }) {
   const [anonymous, setAnonymous] = useState(true);
@@ -15,6 +17,7 @@ export default function Composer({ onPosted, onCancel }) {
   const [recipient, setRecipient] = useState("");
   const [message, setMessage] = useState("");
   const [youtube, setYoutube] = useState(null);
+  const [avatar, setAvatar] = useState(DEFAULT_AVATAR_ID); // Avatar state
 
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
@@ -40,7 +43,8 @@ export default function Composer({ onPosted, onCancel }) {
         name: name.trim() || undefined,
         recipient: recipient.trim() || undefined,
         message: message.trim(),
-        youtube: youtube || undefined
+        youtube: youtube || undefined,
+        avatar: avatar || DEFAULT_AVATAR_ID // Include selected avatar
       };
 
       await apiFetch("/api/posts", {
@@ -52,6 +56,7 @@ export default function Composer({ onPosted, onCancel }) {
       setMessage("");
       setRecipient("");
       setYoutube(null);
+      setAvatar(DEFAULT_AVATAR_ID); // Reset avatar to default
       if (anonymous) setName("");
 
       onPosted?.();
@@ -193,6 +198,94 @@ export default function Composer({ onPosted, onCancel }) {
             border: `1px solid ${theme.borderLight}`
           }}
         />
+      </div>
+
+      {/* Avatar Selection */}
+      <div>
+        <label
+          style={{
+            display: "block",
+            fontSize: 14,
+            fontWeight: 500,
+            marginBottom: 8,
+            color: theme.textPrimary
+          }}
+        >
+          Choose Your Avatar
+        </label>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(60px, 1fr))",
+            gap: 8,
+            padding: 8,
+            background: theme.surface,
+            borderRadius: 8,
+            border: `1px solid ${theme.borderLight}`
+          }}
+        >
+          {AVATARS.map((av) => (
+            <button
+              key={av.id}
+              type="button"
+              onClick={() => setAvatar(av.id)}
+              style={{
+                width: "100%",
+                aspectRatio: "1",
+                padding: 8,
+                borderRadius: 8,
+                border: avatar === av.id 
+                  ? `2px solid ${theme.primary}` 
+                  : `1px solid ${theme.borderLight}`,
+                background: avatar === av.id 
+                  ? theme.primaryBg 
+                  : theme.surface,
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 4
+              }}
+              onMouseEnter={(e) => {
+                if (avatar !== av.id) {
+                  e.currentTarget.style.background = theme.surfaceHover;
+                  e.currentTarget.style.borderColor = theme.primary;
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (avatar !== av.id) {
+                  e.currentTarget.style.background = theme.surface;
+                  e.currentTarget.style.borderColor = theme.borderLight;
+                }
+              }}
+              title={av.name}
+            >
+              <img 
+                src={av.icon} 
+                alt={av.name} 
+                style={{ 
+                  width: "100%", 
+                  height: "auto",
+                  maxWidth: 40,
+                  opacity: avatar === av.id ? 1 : 0.7
+                }} 
+              />
+              <span 
+                style={{ 
+                  fontSize: 10, 
+                  color: avatar === av.id ? theme.primary : theme.textSecondary,
+                  fontWeight: avatar === av.id ? 600 : 400,
+                  textAlign: "center",
+                  lineHeight: 1
+                }}
+              >
+                {av.name}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Message textarea (required) */}

@@ -2,6 +2,7 @@ import { useState } from "react";
 import Composer from "./components/Composer";
 import Feed from "./components/Feed";
 import PixelCat from "./components/PixelCat";
+import CalmBackground from "./components/CalmBackground";
 import { useTheme } from "./contexts/ThemeContext";
 
 export default function App() {
@@ -25,6 +26,9 @@ export default function App() {
 
   return (
     <>
+      {/* Calm nature background - adapts to light/dark mode */}
+      <CalmBackground />
+
       {/* Fixed header with YouTube-inspired design */}
       <header
         style={{

@@ -46,6 +46,7 @@ export default async function handler(req, res) {
           recipient: 1,
           message: 1,
           youtube: 1,
+          avatar: 1, // Include avatar in the response
           createdAt: 1
         })
         .toArray();
@@ -70,15 +71,17 @@ export default async function handler(req, res) {
         });
       }
 
-      const { anonymous, name, recipient, message, youtube } = parsed.data;
+      const { anonymous, name, recipient, message, youtube, avatar } = parsed.data;
 
       // Normalize fields
+      // Avatar defaults to 'default' if not provided (handled by Zod schema)
       const doc = {
         anonymous,
         name: anonymous ? "Anonymous" : name,
         recipient: recipient ? recipient : "",
         message,
         youtube: youtube || null,
+        avatar: avatar || 'default', // Fallback to default avatar
         createdAt: new Date()
       };
 

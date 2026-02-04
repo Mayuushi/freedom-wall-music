@@ -5,6 +5,13 @@ import { z } from "zod";
 // - recipient optional (can be empty string)
 // - message required, trimmed, min length
 // - youtube optional (if provided, we store videoId + title + url)
+// - avatar optional (validated against a predefined list of avatar IDs)
+
+// Valid avatar IDs that match the avatars in the frontend
+const VALID_AVATAR_IDS = [
+  'default', 'knight', 'wizard', 'ninja', 
+  'robot', 'pirate', 'cat', 'alien', 'ghost'
+];
 
 export const CreatePostSchema = z.object({
   anonymous: z.boolean().default(false),
@@ -17,7 +24,10 @@ export const CreatePostSchema = z.object({
       title: z.string().trim().min(1).max(120),
       url: z.string().trim().url()
     })
-    .optional()
+    .optional(),
+  // Avatar field: must be one of the predefined avatar IDs
+  // Defaults to 'default' if not provided or invalid
+  avatar: z.enum(VALID_AVATAR_IDS).default('default')
 }).superRefine((val, ctx) => {
   if (!val.anonymous && !val.name) {
     ctx.addIssue({
