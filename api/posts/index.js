@@ -47,6 +47,8 @@ export default async function handler(req, res) {
           message: 1,
           youtube: 1,
           avatar: 1, // Include avatar in the response
+          reactions: 1, // Include reactions array
+          comments: 1, // Include comments array
           createdAt: 1
         })
         .toArray();
@@ -82,6 +84,8 @@ export default async function handler(req, res) {
         message,
         youtube: youtube || null,
         avatar: avatar || 'default', // Fallback to default avatar
+        reactions: [], // Initialize empty reactions array
+        comments: [], // Initialize empty comments array
         createdAt: new Date()
       };
 

@@ -37,3 +37,19 @@ export const CreatePostSchema = z.object({
     });
   }
 });
+
+// Comment schema for adding comments to posts
+// Comments are stored as an array within each post document
+export const CreateCommentSchema = z.object({
+  postId: z.string().trim().min(1, "Post ID is required"),
+  name: z.string().trim().min(1, "Name is required").max(40),
+  comment: z.string().trim().min(1, "Comment cannot be empty").max(500),
+  avatar: z.enum(VALID_AVATAR_IDS).default('default')
+});
+
+// Reaction schema for adding reactions to posts
+// Tracks unique reactions per user (using a simple identifier)
+export const CreateReactionSchema = z.object({
+  postId: z.string().trim().min(1, "Post ID is required"),
+  reactionType: z.enum(['heart']).default('heart') // Can be extended: 'like', 'love', 'laugh', etc.
+});

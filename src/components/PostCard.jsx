@@ -2,11 +2,15 @@ import { formatDate } from "../lib/format";
 import { useTheme } from "../contexts/ThemeContext";
 import { getAvatarById, DEFAULT_AVATAR_ID } from "../lib/avatars";
 
-export default function PostCard({ post }) {
+export default function PostCard({ post, onExpand }) {
   const { theme } = useTheme();
   
   // Get the avatar for this post, fallback to default if not found
   const avatarData = getAvatarById(post.avatar || DEFAULT_AVATAR_ID);
+  
+  // Calculate counts for reactions and comments
+  const reactionCount = post.reactions?.length || 0;
+  const commentCount = post.comments?.length || 0;
   
   return (
     <div
@@ -16,18 +20,21 @@ export default function PostCard({ post }) {
         overflow: "hidden",
         background: theme.surface,
         transition: "box-shadow 0.2s ease, transform 0.1s ease",
-        cursor: "default",
+        cursor: "pointer",
         height: "100%",
         display: "flex",
         flexDirection: "column"
       }}
+      onClick={() => onExpand && onExpand(post)}
       onMouseEnter={(e) => {
         e.currentTarget.style.boxShadow = theme.isDarkMode 
           ? "0 2px 8px rgba(255,255,255,0.1)"
           : "0 2px 8px rgba(0,0,0,0.1)";
+        e.currentTarget.style.transform = "translateY(-2px)";
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.boxShadow = "none";
+        e.currentTarget.style.transform = "translateY(0)";
       }}
     >
       {/* YouTube embed section - shown first if available */}
@@ -177,6 +184,64 @@ export default function PostCard({ post }) {
         >
           {post.message}
         </p>
+
+        {/* Interaction stats - reactions and comments */}
+        {(reactionCount > 0 || commentCount > 0) && (
+          <div
+            style={{
+              display: "flex",
+              gap: 16,
+              marginTop: 12,
+              paddingTop: 12,
+              borderTop: `1px solid ${theme.border}`
+            }}
+          >
+            {/* Reaction count */}
+            {reactionCount > 0 && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4,
+                  fontSize: 13,
+                  color: theme.textSecondary
+                }}
+              >
+                <span style={{ fontSize: 16 }}>❤️</span>
+                <span>{reactionCount}</span>
+              </div>
+            )}
+
+            {/* Comment count */}
+            {commentCount > 0 && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4,
+                  fontSize: 13,
+                  color: theme.textSecondary
+                }}
+              >
+                <span style={{ fontSize: 16 }}>💬</span>
+                <span>{commentCount}</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Click to expand hint */}
+        <div
+          style={{
+            marginTop: 8,
+            fontSize: 11,
+            color: theme.textTertiary,
+            textAlign: "center",
+            fontStyle: "italic"
+          }}
+        >
+          Click to view details and interact
+        </div>
       </div>
     </div>
   );

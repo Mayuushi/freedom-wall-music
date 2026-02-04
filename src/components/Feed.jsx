@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { apiFetch } from "../lib/api";
 import PostCard from "./PostCard";
+import ExpandedPost from "./ExpandedPost";
 import { useTheme } from "../contexts/ThemeContext";
 
 // Page-based feed with pagination.
@@ -15,6 +16,7 @@ export default function Feed({ refreshKey }) {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
   const [hasMore, setHasMore] = useState(true);
+  const [expandedPost, setExpandedPost] = useState(null); // Track which post is expanded
 
   // Access theme
   const { theme } = useTheme();
@@ -101,6 +103,25 @@ export default function Feed({ refreshKey }) {
     }
   };
 
+  /**
+   * Handle post expansion - open modal with full post details
+   */
+  const handleExpandPost = (post) => {
+    setExpandedPost(post);
+  };
+
+  /**
+   * Handle post update from ExpandedPost component
+   * Updates the post in allItems array when reactions/comments are added
+   */
+  const handlePostUpdate = (updatedPost) => {
+    setAllItems((prevItems) =>
+      prevItems.map((item) =>
+        item._id === updatedPost._id ? updatedPost : item
+      )
+    );
+  };
+
   return (
     <div>
       {/* Feed header with refresh button */}
@@ -172,7 +193,7 @@ export default function Feed({ refreshKey }) {
         }}
       >
         {currentPosts.map((p) => (
-          <PostCard key={p._id} post={p} />
+          <PostCard key={p._id} post={p} onExpand={handleExpandPost} />
         ))}
       </div>
 
@@ -247,6 +268,15 @@ export default function Feed({ refreshKey }) {
             )
           ))}
         </div>
+      )}
+
+      {/* Expanded post modal */}
+      {expandedPost && (
+        <ExpandedPost
+          post={expandedPost}
+          onClose={() => setExpandedPost(null)}
+          onUpdate={handlePostUpdate}
+        />
       )}
     </div>
   );
