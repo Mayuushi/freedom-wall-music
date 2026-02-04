@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { apiFetch } from "../lib/api";
 import PostCard from "./PostCard";
 import ExpandedPost from "./ExpandedPost";
+import RunningCat from "./RunningCat";
 import { useTheme } from "../contexts/ThemeContext";
 
 // Page-based feed with pagination.
@@ -133,9 +134,7 @@ export default function Feed({ refreshKey }) {
           marginBottom: 24
         }}
       >
-        <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: theme.textPrimary }}>
-          Public Wall
-        </h3>
+        <RunningCat loading={loading} />
         <button
           type="button"
           onClick={loadAllPosts}

@@ -18,12 +18,23 @@ export default function PostCard({ post, onExpand, onUpdate }) {
   /**
    * Handle quick reaction (without opening the post)
    * Prevents event bubbling to avoid triggering post expansion
+   * Uses optimistic update for seamless UX
    */
   async function handleQuickReaction(e) {
     e.stopPropagation(); // Prevent post expansion
     if (reacting) return;
 
     setReacting(true);
+    
+    // Optimistic update - update UI immediately
+    const optimisticPost = {
+      ...post,
+      reactions: [...(post.reactions || []), { type: "heart" }]
+    };
+    if (onUpdate) {
+      onUpdate(optimisticPost);
+    }
+
     try {
       const response = await apiFetch("/api/reactions", {
         method: "POST",
@@ -33,7 +44,7 @@ export default function PostCard({ post, onExpand, onUpdate }) {
         })
       });
 
-      // Update parent with new reaction count
+      // Update with actual server response
       if (onUpdate) {
         const updatedPost = {
           ...post,
@@ -45,6 +56,10 @@ export default function PostCard({ post, onExpand, onUpdate }) {
       }
     } catch (err) {
       console.error("Failed to react:", err);
+      // Rollback on error
+      if (onUpdate) {
+        onUpdate(post);
+      }
     } finally {
       setReacting(false);
     }
@@ -198,7 +213,8 @@ export default function PostCard({ post, onExpand, onUpdate }) {
               display: "-webkit-box",
               WebkitLineClamp: 2,
               WebkitBoxOrient: "vertical",
-              overflow: "hidden"
+              overflow: "hidden",
+              minHeight: "36px"
             }}
           >
             🎵 {post.youtube.title}
@@ -212,7 +228,8 @@ export default function PostCard({ post, onExpand, onUpdate }) {
             padding: 12,
             background: theme.isDarkMode ? "rgba(255, 255, 255, 0.03)" : "rgba(0, 0, 0, 0.02)",
             borderRadius: 8,
-            borderLeft: `3px solid ${theme.primary}`
+            borderLeft: `3px solid ${theme.primary}`,
+            minHeight: "50px"
           }}
         >
           <p
@@ -224,13 +241,14 @@ export default function PostCard({ post, onExpand, onUpdate }) {
               color: theme.textPrimary,
               fontWeight: 500,
               wordBreak: "break-word",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
               display: "-webkit-box",
-              WebkitLineClamp: post.youtube?.videoId ? 4 : 6,
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden"
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: "vertical"
             }}
           >
-            {post.message}
+            {post.message.length > 100 ? `${post.message.slice(0, 100)}...` : post.message}
           </p>
         </div>
 
