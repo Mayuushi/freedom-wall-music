@@ -1,83 +1,149 @@
 import { useTheme } from "../contexts/ThemeContext";
 
 /**
- * 8-bit Pixel Art Thinking Cat
- * Animated CSS-based pixel art cat
+ * SVG Cat Logo
+ * Cute animated cat that adapts to theme
  */
 export default function PixelCat() {
-  const { theme, isDarkMode } = useTheme();
+  const { isDarkMode } = useTheme();
   
-  // Cat color palette
+  // Cat color palette based on theme
   const catColor = isDarkMode ? "#FFB86C" : "#FF8C42";
   const catDark = isDarkMode ? "#D68A4D" : "#CC6633";
   const eyeColor = "#2E3440";
   const noseColor = "#FF6B9D";
-  
-  // Pixel size
-  const px = 3;
-  
-  // Helper to create a pixel
-  const Pixel = ({ color, style = {} }) => (
-    <div
-      style={{
-        width: px,
-        height: px,
-        backgroundColor: color,
-        ...style
-      }}
-    />
-  );
+  const whiskerColor = isDarkMode ? "#FFD4A3" : "#CC6633";
   
   return (
     <div
       style={{
         display: "inline-block",
         animation: "catThinking 2s ease-in-out infinite",
-        imageRendering: "pixelated"
+        width: 48,
+        height: 48
       }}
     >
-      {/* Cat pixel art grid */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: `repeat(16, ${px}px)`,
-          gap: 0,
-          lineHeight: 0
-        }}
+      <svg
+        width="48"
+        height="48"
+        viewBox="0 0 64 64"
+        xmlns="http://www.w3.org/2000/svg"
+        style={{ display: "block" }}
       >
-        {/* Row 1 - Ears */}
-        <Pixel /><Pixel /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel /><Pixel /><Pixel /><Pixel /><Pixel /><Pixel /><Pixel /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel /><Pixel /><Pixel />
+        {/* Left ear */}
+        <path
+          d="M 12 18 L 8 8 L 18 14 Z"
+          fill={catColor}
+          stroke={catDark}
+          strokeWidth="1.5"
+        />
         
-        {/* Row 2 - Ears */}
-        <Pixel /><Pixel color={catColor} /><Pixel color={catDark} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel /><Pixel /><Pixel /><Pixel /><Pixel /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catDark} /><Pixel color={catColor} /><Pixel /><Pixel />
+        {/* Right ear */}
+        <path
+          d="M 52 18 L 56 8 L 46 14 Z"
+          fill={catColor}
+          stroke={catDark}
+          strokeWidth="1.5"
+        />
         
-        {/* Row 3 - Top of head */}
-        <Pixel color={catColor} /><Pixel color={catDark} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel /><Pixel /><Pixel /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catDark} /><Pixel color={catColor} /><Pixel />
+        {/* Head circle */}
+        <circle
+          cx="32"
+          cy="32"
+          r="20"
+          fill={catColor}
+          stroke={catDark}
+          strokeWidth="2"
+        />
         
-        {/* Row 4 - Head */}
-        <Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel />
+        {/* Left eye */}
+        <ellipse
+          cx="24"
+          cy="28"
+          rx="3"
+          ry="5"
+          fill={eyeColor}
+        >
+          <animate
+            attributeName="ry"
+            values="5;0.5;5"
+            dur="3s"
+            repeatCount="indefinite"
+          />
+        </ellipse>
         
-        {/* Row 5 - Eyes row */}
-        <Pixel /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={eyeColor} /><Pixel color={eyeColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={eyeColor} /><Pixel color={eyeColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel /><Pixel />
+        {/* Right eye */}
+        <ellipse
+          cx="40"
+          cy="28"
+          rx="3"
+          ry="5"
+          fill={eyeColor}
+        >
+          <animate
+            attributeName="ry"
+            values="5;0.5;5"
+            dur="3s"
+            repeatCount="indefinite"
+          />
+        </ellipse>
         
-        {/* Row 6 - Eyes highlight */}
-        <Pixel /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={eyeColor} /><Pixel color={eyeColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={eyeColor} /><Pixel color={eyeColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel /><Pixel />
+        {/* Eye highlights */}
+        <circle cx="25" cy="26" r="1.5" fill="white" opacity="0.8" />
+        <circle cx="41" cy="26" r="1.5" fill="white" opacity="0.8" />
         
-        {/* Row 7 - Cheeks */}
-        <Pixel /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catDark} /><Pixel color={catDark} /><Pixel color={catDark} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel /><Pixel />
+        {/* Nose */}
+        <path
+          d="M 32 34 L 30 38 L 34 38 Z"
+          fill={noseColor}
+        />
         
-        {/* Row 8 - Nose */}
-        <Pixel /><Pixel /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={noseColor} /><Pixel color={noseColor} /><Pixel color={noseColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel /><Pixel /><Pixel />
+        {/* Mouth */}
+        <path
+          d="M 32 38 Q 28 42 24 40"
+          stroke={catDark}
+          strokeWidth="1.5"
+          fill="none"
+          strokeLinecap="round"
+        />
+        <path
+          d="M 32 38 Q 36 42 40 40"
+          stroke={catDark}
+          strokeWidth="1.5"
+          fill="none"
+          strokeLinecap="round"
+        />
         
-        {/* Row 9 - Mouth */}
-        <Pixel /><Pixel /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={eyeColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel /><Pixel /><Pixel />
+        {/* Left whiskers */}
+        <line x1="14" y1="32" x2="4" y2="30" stroke={whiskerColor} strokeWidth="1" strokeLinecap="round" />
+        <line x1="14" y1="34" x2="4" y2="36" stroke={whiskerColor} strokeWidth="1" strokeLinecap="round" />
+        <line x1="16" y1="36" x2="6" y2="40" stroke={whiskerColor} strokeWidth="1" strokeLinecap="round" />
         
-        {/* Row 10 - Chin */}
-        <Pixel /><Pixel /><Pixel /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel /><Pixel /><Pixel /><Pixel />
+        {/* Right whiskers */}
+        <line x1="50" y1="32" x2="60" y2="30" stroke={whiskerColor} strokeWidth="1" strokeLinecap="round" />
+        <line x1="50" y1="34" x2="60" y2="36" stroke={whiskerColor} strokeWidth="1" strokeLinecap="round" />
+        <line x1="48" y1="36" x2="58" y2="40" stroke={whiskerColor} strokeWidth="1" strokeLinecap="round" />
         
-        {/* Row 11 - Bottom */}
-        <Pixel /><Pixel /><Pixel /><Pixel /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel color={catColor} /><Pixel /><Pixel /><Pixel /><Pixel /><Pixel />
-      </div>
+        {/* Cheek blush - left */}
+        <ellipse
+          cx="18"
+          cy="36"
+          rx="4"
+          ry="3"
+          fill={noseColor}
+          opacity="0.3"
+        />
+        
+        {/* Cheek blush - right */}
+        <ellipse
+          cx="46"
+          cy="36"
+          rx="4"
+          ry="3"
+          fill={noseColor}
+          opacity="0.3"
+        />
+      </svg>
     </div>
   );
 }
