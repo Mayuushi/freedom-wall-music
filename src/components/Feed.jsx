@@ -193,7 +193,7 @@ export default function Feed({ refreshKey }) {
         }}
       >
         {currentPosts.map((p) => (
-          <PostCard key={p._id} post={p} onExpand={handleExpandPost} />
+          <PostCard key={p._id} post={p} onExpand={handleExpandPost} onUpdate={handlePostUpdate} />
         ))}
       </div>
 

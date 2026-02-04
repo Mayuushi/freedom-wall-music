@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { formatDate } from "../lib/format";
 import { useTheme } from "../contexts/ThemeContext";
 import { getAvatarById, DEFAULT_AVATAR_ID } from "../lib/avatars";
+import { apiFetch } from "../lib/api";
 
-export default function PostCard({ post, onExpand }) {
+export default function PostCard({ post, onExpand, onUpdate }) {
   const { theme } = useTheme();
+  const [reacting, setReacting] = useState(false);
   
   // Get the avatar for this post, fallback to default if not found
   const avatarData = getAvatarById(post.avatar || DEFAULT_AVATAR_ID);
@@ -11,6 +14,41 @@ export default function PostCard({ post, onExpand }) {
   // Calculate counts for reactions and comments
   const reactionCount = post.reactions?.length || 0;
   const commentCount = post.comments?.length || 0;
+
+  /**
+   * Handle quick reaction (without opening the post)
+   * Prevents event bubbling to avoid triggering post expansion
+   */
+  async function handleQuickReaction(e) {
+    e.stopPropagation(); // Prevent post expansion
+    if (reacting) return;
+
+    setReacting(true);
+    try {
+      const response = await apiFetch("/api/reactions", {
+        method: "POST",
+        body: JSON.stringify({
+          postId: post._id,
+          reactionType: "heart"
+        })
+      });
+
+      // Update parent with new reaction count
+      if (onUpdate) {
+        const updatedPost = {
+          ...post,
+          reactions: response.action === "added"
+            ? [...(post.reactions || []), { type: "heart" }]
+            : (post.reactions || []).slice(0, -1)
+        };
+        onUpdate(updatedPost);
+      }
+    } catch (err) {
+      console.error("Failed to react:", err);
+    } finally {
+      setReacting(false);
+    }
+  }
   
   return (
     <div
@@ -167,80 +205,114 @@ export default function PostCard({ post, onExpand }) {
           </div>
         ) : null}
 
-        {/* Message content */}
-        <p
-          style={{
-            whiteSpace: "pre-wrap",
-            margin: 0,
-            fontSize: 14,
-            lineHeight: 1.5,
-            color: theme.textPrimary,
-            wordBreak: "break-word",
-            display: "-webkit-box",
-            WebkitLineClamp: post.youtube?.videoId ? 4 : 6,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden"
-          }}
-        >
-          {post.message}
-        </p>
-
-        {/* Interaction stats - reactions and comments */}
-        {(reactionCount > 0 || commentCount > 0) && (
-          <div
-            style={{
-              display: "flex",
-              gap: 16,
-              marginTop: 12,
-              paddingTop: 12,
-              borderTop: `1px solid ${theme.border}`
-            }}
-          >
-            {/* Reaction count */}
-            {reactionCount > 0 && (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 4,
-                  fontSize: 13,
-                  color: theme.textSecondary
-                }}
-              >
-                <span style={{ fontSize: 16 }}>❤️</span>
-                <span>{reactionCount}</span>
-              </div>
-            )}
-
-            {/* Comment count */}
-            {commentCount > 0 && (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 4,
-                  fontSize: 13,
-                  color: theme.textSecondary
-                }}
-              >
-                <span style={{ fontSize: 16 }}>💬</span>
-                <span>{commentCount}</span>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Click to expand hint */}
+        {/* Message content - emphasized */}
         <div
           style={{
-            marginTop: 8,
-            fontSize: 11,
-            color: theme.textTertiary,
-            textAlign: "center",
-            fontStyle: "italic"
+            marginTop: 12,
+            padding: 12,
+            background: theme.isDarkMode ? "rgba(255, 255, 255, 0.03)" : "rgba(0, 0, 0, 0.02)",
+            borderRadius: 8,
+            borderLeft: `3px solid ${theme.primary}`
           }}
         >
-          Click to view details and interact
+          <p
+            style={{
+              whiteSpace: "pre-wrap",
+              margin: 0,
+              fontSize: 15,
+              lineHeight: 1.6,
+              color: theme.textPrimary,
+              fontWeight: 500,
+              wordBreak: "break-word",
+              display: "-webkit-box",
+              WebkitLineClamp: post.youtube?.videoId ? 4 : 6,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden"
+            }}
+          >
+            {post.message}
+          </p>
+        </div>
+
+        {/* Interaction buttons - reactions and comments */}
+        <div
+          style={{
+            display: "flex",
+            gap: 8,
+            marginTop: 12,
+            paddingTop: 12,
+            borderTop: `1px solid ${theme.border}`
+          }}
+        >
+          {/* Quick reaction button */}
+          <button
+            type="button"
+            onClick={handleQuickReaction}
+            disabled={reacting}
+            style={{
+              padding: "6px 12px",
+              borderRadius: 16,
+              border: `1px solid ${theme.borderLight}`,
+              background: theme.surface,
+              color: theme.textPrimary,
+              fontSize: 13,
+              fontWeight: 500,
+              cursor: reacting ? "not-allowed" : "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              transition: "all 0.2s"
+            }}
+            onMouseEnter={(e) => {
+              if (!reacting) {
+                e.target.style.background = theme.surfaceHover;
+                e.target.style.transform = "scale(1.05)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!reacting) {
+                e.target.style.background = theme.surface;
+                e.target.style.transform = "scale(1)";
+              }
+            }}
+          >
+            <span style={{ fontSize: 16 }}>❤️</span>
+            <span>{reactionCount}</span>
+          </button>
+
+          {/* Comment button - opens expanded view */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onExpand && onExpand(post);
+            }}
+            style={{
+              padding: "6px 12px",
+              borderRadius: 16,
+              border: `1px solid ${theme.borderLight}`,
+              background: theme.surface,
+              color: theme.textPrimary,
+              fontSize: 13,
+              fontWeight: 500,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              transition: "all 0.2s"
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = theme.surfaceHover;
+              e.target.style.transform = "scale(1.05)";
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = theme.surface;
+              e.target.style.transform = "scale(1)";
+            }}
+          >
+            <span style={{ fontSize: 16 }}>💬</span>
+            <span>{commentCount}</span>
+          </button>
         </div>
       </div>
     </div>

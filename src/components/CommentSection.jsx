@@ -12,6 +12,7 @@ import { apiFetch } from "../lib/api";
 export default function CommentSection({ postId, comments = [], onCommentAdded }) {
   const { theme } = useTheme();
   const [showCommentForm, setShowCommentForm] = useState(false);
+  const [anonymous, setAnonymous] = useState(false);
   const [name, setName] = useState("");
   const [commentText, setCommentText] = useState("");
   const [avatar, setAvatar] = useState(DEFAULT_AVATAR_ID);
@@ -27,8 +28,8 @@ export default function CommentSection({ postId, comments = [], onCommentAdded }
     setError("");
 
     // Client-side validation
-    if (!name.trim()) {
-      setError("Name is required");
+    if (!anonymous && !name.trim()) {
+      setError("Name is required when not posting anonymously");
       return;
     }
     if (!commentText.trim()) {
@@ -44,7 +45,7 @@ export default function CommentSection({ postId, comments = [], onCommentAdded }
     try {
       const payload = {
         postId,
-        name: name.trim(),
+        name: anonymous ? "Anonymous" : name.trim(),
         comment: commentText.trim(),
         avatar
       };
@@ -57,6 +58,7 @@ export default function CommentSection({ postId, comments = [], onCommentAdded }
       // Reset form on success
       setCommentText("");
       setName("");
+      setAnonymous(false);
       setAvatar(DEFAULT_AVATAR_ID);
       setShowCommentForm(false);
 
@@ -137,26 +139,47 @@ export default function CommentSection({ postId, comments = [], onCommentAdded }
             border: `1px solid ${theme.borderLight}`
           }}
         >
-          {/* Name input */}
-          <div style={{ marginBottom: 8 }}>
+          {/* Anonymous toggle */}
+          <label
+            style={{
+              display: "flex",
+              gap: 8,
+              alignItems: "center",
+              cursor: "pointer",
+              marginBottom: 8
+            }}
+          >
             <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Your name"
-              maxLength={40}
-              style={{
-                width: "100%",
-                boxSizing: "border-box",
-                padding: "8px 12px",
-                borderRadius: 6,
-                border: `1px solid ${theme.borderLight}`,
-                background: theme.surface,
-                color: theme.textPrimary,
-                fontSize: 14
-              }}
+              type="checkbox"
+              checked={anonymous}
+              onChange={(e) => setAnonymous(e.target.checked)}
+              style={{ width: 16, height: 16, cursor: "pointer" }}
             />
-          </div>
+            <span style={{ fontSize: 13, color: theme.textPrimary }}>Comment anonymously</span>
+          </label>
+
+          {/* Name input - conditional */}
+          {!anonymous && (
+            <div style={{ marginBottom: 8 }}>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Your name"
+                maxLength={40}
+                style={{
+                  width: "100%",
+                  boxSizing: "border-box",
+                  padding: "8px 12px",
+                  borderRadius: 6,
+                  border: `1px solid ${theme.borderLight}`,
+                  background: theme.surface,
+                  color: theme.textPrimary,
+                  fontSize: 14
+                }}
+              />
+            </div>
+          )}
 
           {/* Avatar selection - compact version */}
           <div style={{ marginBottom: 8 }}>
@@ -270,6 +293,7 @@ export default function CommentSection({ postId, comments = [], onCommentAdded }
                 setError("");
                 setCommentText("");
                 setName("");
+                setAnonymous(false);
                 setAvatar(DEFAULT_AVATAR_ID);
               }}
               disabled={loading}
