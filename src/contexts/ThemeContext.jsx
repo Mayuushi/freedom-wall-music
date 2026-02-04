@@ -75,13 +75,13 @@ export const themes = {
  */
 export function ThemeProvider({ children }) {
   const [isDarkMode, setIsDarkMode] = useState(() => {
-    // Initialize from localStorage or system preference
+    // Initialize from localStorage or default to dark mode
     const stored = localStorage.getItem("darkMode");
     if (stored !== null) {
       return stored === "true";
     }
-    // Check system preference
-    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    // Default to dark mode
+    return true;
   });
 
   const theme = isDarkMode ? themes.dark : themes.light;
