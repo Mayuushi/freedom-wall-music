@@ -1,8 +1,9 @@
-// Shared MongoDB client for serverless environment.
+// Shared database accessor for serverless and local development.
 // - In serverless, functions can be invoked many times; caching avoids reconnecting every request.
-// - Uses globalThis to reuse the client across hot invocations.
+// - If MongoDB is unavailable in development, we fall back to an in-memory store so the app still works.
 
 import { MongoClient } from "mongodb";
+import { createMemoryDb } from "./memory-db.js";
 
 const uri = process.env.MONGODB_URI;
 if (!uri) throw new Error("Missing MONGODB_URI env var");
@@ -11,10 +12,18 @@ const dbName = process.env.MONGODB_DB || "freedom_wall";
 
 let cached = globalThis.__mongoCache;
 if (!cached) {
-  cached = globalThis.__mongoCache = { client: null, promise: null };
+  cached = globalThis.__mongoCache = { client: null, promise: null, memoryDb: null };
+}
+
+function shouldUseMemoryFallback(err) {
+  if (process.env.NODE_ENV === "production") return false;
+
+  const message = String(err?.message || err).toLowerCase();
+  return message.includes("authentication failed") || message.includes("bad auth") || message.includes("connect");
 }
 
 export async function getDb() {
+  if (cached.memoryDb) return cached.memoryDb;
   if (cached.client) return cached.client.db(dbName);
 
   if (!cached.promise) {
@@ -28,6 +37,18 @@ export async function getDb() {
     });
   }
 
-  const client = await cached.promise;
-  return client.db(dbName);
+  try {
+    const client = await cached.promise;
+    return client.db(dbName);
+  } catch (err) {
+    cached.promise = null;
+
+    if (shouldUseMemoryFallback(err)) {
+      console.warn("[db] MongoDB unavailable, using in-memory fallback for development.");
+      cached.memoryDb = createMemoryDb();
+      return cached.memoryDb;
+    }
+
+    throw err;
+  }
 }
