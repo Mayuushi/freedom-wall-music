@@ -22,18 +22,24 @@ function shouldUseMemoryFallback(err) {
   return message.includes("authentication failed") || message.includes("bad auth") || message.includes("connect");
 }
 
+function buildMongoClientOptions() {
+  return {
+    maxPoolSize: 10,
+    serverSelectionTimeoutMS: 4000,
+    connectTimeoutMS: 4000,
+    socketTimeoutMS: 4000,
+    tls: true,
+    retryWrites: true,
+    w: "majority"
+  };
+}
+
 export async function getDb() {
   if (cached.memoryDb) return cached.memoryDb;
   if (cached.client) return cached.client.db(dbName);
 
   if (!cached.promise) {
-    const client = new MongoClient(uri, {
-      // Reasonable defaults; the driver handles pooling internally.
-      maxPoolSize: 10,
-      serverSelectionTimeoutMS: 4000,
-      connectTimeoutMS: 4000,
-      socketTimeoutMS: 4000
-    });
+    const client = new MongoClient(uri, buildMongoClientOptions());
     cached.promise = client.connect().then((c) => {
       cached.client = c;
       return c;
@@ -50,6 +56,13 @@ export async function getDb() {
       console.warn("[db] MongoDB unavailable, using in-memory fallback for development.");
       cached.memoryDb = createMemoryDb();
       return cached.memoryDb;
+    }
+
+    const message = String(err?.message || err);
+    if (message.toLowerCase().includes("tls") || message.toLowerCase().includes("ssl")) {
+      throw new Error(
+        `MongoDB TLS handshake failed. Check Atlas network access, cluster status, and the deployed MONGODB_URI value. Original error: ${message}`
+      );
     }
 
     throw err;
