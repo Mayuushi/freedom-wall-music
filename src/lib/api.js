@@ -6,7 +6,7 @@
 
 export async function apiFetch(path, options = {}) {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10_000);
+  const timeout = setTimeout(() => controller.abort(new DOMException("Request timed out", "TimeoutError")), 15_000);
 
   try {
     const res = await fetch(path, {
@@ -30,6 +30,12 @@ export async function apiFetch(path, options = {}) {
     }
 
     return data;
+  } catch (err) {
+    if (err?.name === "AbortError" || err?.name === "TimeoutError") {
+      throw new Error("Request timed out while waiting for the server.");
+    }
+
+    throw err;
   } finally {
     clearTimeout(timeout);
   }

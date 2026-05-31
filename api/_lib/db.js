@@ -29,7 +29,10 @@ export async function getDb() {
   if (!cached.promise) {
     const client = new MongoClient(uri, {
       // Reasonable defaults; the driver handles pooling internally.
-      maxPoolSize: 10
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 4000,
+      connectTimeoutMS: 4000,
+      socketTimeoutMS: 4000
     });
     cached.promise = client.connect().then((c) => {
       cached.client = c;
