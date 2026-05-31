@@ -34,12 +34,34 @@ function buildMongoClientOptions() {
   };
 }
 
+function normalizeMongoUri(inputUri) {
+  const url = new URL(inputUri);
+
+  if (!url.searchParams.has("authSource")) {
+    url.searchParams.set("authSource", "admin");
+  }
+
+  if (!url.searchParams.has("retryWrites")) {
+    url.searchParams.set("retryWrites", "true");
+  }
+
+  if (!url.searchParams.has("w")) {
+    url.searchParams.set("w", "majority");
+  }
+
+  if (!url.searchParams.has("tls")) {
+    url.searchParams.set("tls", "true");
+  }
+
+  return url.toString();
+}
+
 export async function getDb() {
   if (cached.memoryDb) return cached.memoryDb;
   if (cached.client) return cached.client.db(dbName);
 
   if (!cached.promise) {
-    const client = new MongoClient(uri, buildMongoClientOptions());
+    const client = new MongoClient(normalizeMongoUri(uri), buildMongoClientOptions());
     cached.promise = client.connect().then((c) => {
       cached.client = c;
       return c;
