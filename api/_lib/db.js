@@ -25,9 +25,9 @@ function shouldUseMemoryFallback(err) {
 function buildMongoClientOptions() {
   return {
     maxPoolSize: 10,
-    serverSelectionTimeoutMS: 4000,
-    connectTimeoutMS: 4000,
-    socketTimeoutMS: 4000,
+    serverSelectionTimeoutMS: 10000,
+    connectTimeoutMS: 10000,
+    socketTimeoutMS: 10000,
     tls: true,
     retryWrites: true,
     w: "majority"

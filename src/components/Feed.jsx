@@ -123,7 +123,27 @@ export default function Feed({ refreshKey }) {
   };
 
   return (
-    <div>
+    <div style={{ position: "relative" }} aria-busy={loading}>
+      {loading && (
+        <div
+          aria-live="polite"
+          style={{
+            position: "fixed",
+            top: 88,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+            pointerEvents: "all"
+          }}
+        >
+          <div className="feed-loader" aria-label="Loading" />
+        </div>
+      )}
+
       {/* Post count display */}
       {allItems.length > 0 && (
         <div style={{ marginBottom: 16, fontSize: 13, color: theme.textSecondary }}>
